@@ -48,7 +48,11 @@ export class AuthService {
     if (this.isLoggedIn()) {
       this.getCurrentUser().subscribe({
         next: (user) => this.userSubject.next(user),
-        error: () => this.logout()
+        error: () => {
+          // Clear invalid token
+          localStorage.removeItem('token');
+          this.userSubject.next(null);
+        }
       });
     }
   }
