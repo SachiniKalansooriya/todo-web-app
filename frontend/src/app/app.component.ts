@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet, Router } from '@angular/router';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { AuthService } from './auth/auth.service';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 interface User {
   id: number;
@@ -20,6 +21,7 @@ interface User {
 export class AppComponent implements OnInit {
   title = 'Todo App';
   user$: Observable<User | null>;
+  showHeader = true;
 
   constructor(
     private authService: AuthService,
@@ -33,6 +35,19 @@ export class AppComponent implements OnInit {
     if (this.authService.isLoggedIn()) {
       this.authService.getCurrentUser().subscribe();
     }
+
+    // Hide header on login/auth pages
+    this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
+      const url = event.urlAfterRedirects || event.url;
+      this.showHeader = !this.isAuthPage(url);
+    });
+
+    // Set initial header visibility based on current route
+    this.showHeader = !this.isAuthPage(this.router.url);
+  }
+
+  private isAuthPage(url: string): boolean {
+    return url.startsWith('/login') || url.startsWith('/auth/') || url === '/';
   }
 
   logout() {
