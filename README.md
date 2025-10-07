@@ -1,5 +1,5 @@
 # Todo Web Application
-🎯 **# Overview**
+🎯  **Overview**
 
 A full-stack todo management application built with Angular 19 frontend and Spring Boot 3.5.6 backend, featuring Google OAuth2 authentication, MySQL database integration, and modern responsive design.
 
