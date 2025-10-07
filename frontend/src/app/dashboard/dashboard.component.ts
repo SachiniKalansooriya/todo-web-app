@@ -1,7 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
+import { TaskService } from '../services/task.service';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
+import { Task, TaskRequest, Status, Priority, TaskStats } from '../models/task.model';
+import { TaskListComponent } from '../components/task-list/task-list.component';
+import { TaskFormComponent } from '../components/task-form/task-form.component';
 
 interface User {
   id: number;
@@ -13,42 +17,38 @@ interface User {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
-  template: `
-    <div class="dashboard-container">
-      <div class="welcome-section" *ngIf="user$ | async as user">
-        <h2>Welcome back, {{ user.name }}!</h2>
-        <p>You're successfully authenticated with Google OAuth2.</p>
-        
-        <div class="user-details">
-          <div class="detail-item">
-            <strong>Email:</strong> {{ user.email }}
-          </div>
-          <div class="detail-item">
-            <strong>User ID:</strong> {{ user.id }}
-          </div>
-        </div>
-      </div>
-      
-      <div class="todo-section">
-        <h3>Your Todos</h3>
-        <p>Todo functionality will be implemented here...</p>
-        
-        <!-- Placeholder for todo list -->
-        <div class="placeholder-content">
-          <div class="placeholder-item">✅ Add todo functionality</div>
-          <div class="placeholder-item">📝 Create todo items</div>
-          <div class="placeholder-item">🗑️ Delete completed todos</div>
-        </div>
-      </div>
-    </div>
-  `,
-  styleUrl: './dashboard.component.css'
+  imports: [CommonModule, TaskListComponent, TaskFormComponent],
+  templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
   user$: Observable<User | null>;
+  tasks: Task[] = [];
+  filteredTasks: Task[] = [];
+  loading = false;
+  error = '';
+  
+  // Form and modal state
+  showTaskForm = false;
+  editingTask?: Task;
+  
+  // Filter and view state
+  currentFilter: 'all' | Status = 'all';
+  searchTerm = '';
+  
+  // Stats
+  taskStats: TaskStats = {
+    total: 0,
+    todo: 0,
+    inProgress: 0,
+    done: 0,
+    overdue: 0
+  };
 
-  constructor(private authService: AuthService) {
+  constructor(
+    private authService: AuthService,
+    private taskService: TaskService
+  ) {
     this.user$ = this.authService.user$;
   }
 
@@ -56,6 +56,153 @@ export class DashboardComponent implements OnInit {
     // Ensure user data is loaded
     if (this.authService.isLoggedIn()) {
       this.authService.getCurrentUser().subscribe();
+    }
+    this.loadTasks();
+  }
+
+  loadTasks() {
+    this.loading = true;
+    this.error = '';
+    
+    this.taskService.getAllTasks().subscribe({
+      next: (tasks) => {
+        this.tasks = tasks;
+        this.applyFilters();
+        this.calculateStats();
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = 'Failed to load tasks';
+        this.loading = false;
+        console.error('Error loading tasks:', err);
+      }
+    });
+  }
+
+  openTaskForm() {
+    this.editingTask = undefined;
+    this.showTaskForm = true;
+  }
+
+  editTask(task: Task) {
+    this.editingTask = task;
+    this.showTaskForm = true;
+  }
+
+  saveTask(taskRequest: TaskRequest) {
+    if (this.editingTask) {
+      // Update existing task
+      this.taskService.updateTask(this.editingTask.id, taskRequest).subscribe({
+        next: () => {
+          this.loadTasks();
+          this.closeTaskForm();
+        },
+        error: (err) => {
+          this.error = 'Failed to update task';
+          console.error('Error updating task:', err);
+        }
+      });
+    } else {
+      // Create new task
+      this.taskService.createTask(taskRequest).subscribe({
+        next: () => {
+          this.loadTasks();
+          this.closeTaskForm();
+        },
+        error: (err) => {
+          this.error = 'Failed to create task';
+          console.error('Error creating task:', err);
+        }
+      });
+    }
+  }
+
+  deleteTask(id: number) {
+    this.taskService.deleteTask(id).subscribe({
+      next: () => {
+        this.loadTasks();
+      },
+      error: (err) => {
+        this.error = 'Failed to delete task';
+        console.error('Error deleting task:', err);
+      }
+    });
+  }
+
+  updateTaskStatus(data: {id: number, status: Status}) {
+    this.taskService.updateTaskStatus(data.id, data.status).subscribe({
+      next: () => {
+        this.loadTasks();
+      },
+      error: (err) => {
+        this.error = 'Failed to update task status';
+        console.error('Error updating task status:', err);
+      }
+    });
+  }
+
+  closeTaskForm() {
+    this.showTaskForm = false;
+    this.editingTask = undefined;
+  }
+
+  setFilter(filter: 'all' | Status) {
+    this.currentFilter = filter;
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    let filtered = [...this.tasks];
+    
+    // Apply status filter
+    if (this.currentFilter !== 'all') {
+      filtered = filtered.filter(task => task.status === this.currentFilter);
+    }
+    
+    // Apply search filter
+    if (this.searchTerm) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(task => 
+        task.title.toLowerCase().includes(term) || 
+        (task.description && task.description.toLowerCase().includes(term))
+      );
+    }
+    
+    this.filteredTasks = filtered;
+  }
+
+  onSearchChange(event: any) {
+    this.searchTerm = event.target.value;
+    this.applyFilters();
+  }
+
+  calculateStats() {
+    this.taskStats = {
+      total: this.tasks.length,
+      todo: this.tasks.filter(t => t.status === Status.TODO).length,
+      inProgress: this.tasks.filter(t => t.status === Status.IN_PROGRESS).length,
+      done: this.tasks.filter(t => t.status === Status.DONE).length,
+      overdue: this.tasks.filter(t => t.overdue).length
+    };
+  }
+
+  get Priority() { return Priority; }
+  get Status() { return Status; }
+
+  getEmptyMessage(): string {
+    if (this.searchTerm) {
+      return `No tasks found matching "${this.searchTerm}"`;
+    }
+    
+    switch (this.currentFilter) {
+      case Status.TODO:
+        return 'No tasks to do. Great job!';
+      case Status.IN_PROGRESS:
+        return 'No tasks in progress';
+      case Status.DONE:
+        return 'No completed tasks yet';
+      default:
+        return 'No tasks found. Create your first task to get started!';
     }
   }
 }

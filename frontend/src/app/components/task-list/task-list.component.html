@@ -1,0 +1,76 @@
+<div class="task-list-container">
+  <div class="task-list-header" *ngIf="title">
+    <h2>{{ title }}</h2>
+    <span class="task-count">{{ tasks.length }} task(s)</span>
+  </div>
+
+  <div class="tasks-grid" *ngIf="tasks.length > 0; else emptyState">
+    <!-- To Do Column -->
+    <div class="task-column">
+      <div class="column-header todo-header">
+        <h3>📋 To Do</h3>
+        <span class="task-count">{{ todoTasks.length }}</span>
+      </div>
+      <div class="task-column-content">
+        <app-task-item
+          *ngFor="let task of todoTasks"
+          [task]="task"
+          (editTask)="onEditTask($event)"
+          (deleteTask)="onDeleteTask($event)"
+          (updateStatus)="onUpdateStatus($event)">
+        </app-task-item>
+        <div class="empty-column" *ngIf="todoTasks.length === 0">
+          <p>No tasks to do</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- In Progress Column -->
+    <div class="task-column">
+      <div class="column-header in-progress-header">
+        <h3>🔄 In Progress</h3>
+        <span class="task-count">{{ inProgressTasks.length }}</span>
+      </div>
+      <div class="task-column-content">
+        <app-task-item
+          *ngFor="let task of inProgressTasks"
+          [task]="task"
+          (editTask)="onEditTask($event)"
+          (deleteTask)="onDeleteTask($event)"
+          (updateStatus)="onUpdateStatus($event)">
+        </app-task-item>
+        <div class="empty-column" *ngIf="inProgressTasks.length === 0">
+          <p>No tasks in progress</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Done Column -->
+    <div class="task-column">
+      <div class="column-header done-header">
+        <h3>✅ Done</h3>
+        <span class="task-count">{{ doneTasks.length }}</span>
+      </div>
+      <div class="task-column-content">
+        <app-task-item
+          *ngFor="let task of doneTasks"
+          [task]="task"
+          (editTask)="onEditTask($event)"
+          (deleteTask)="onDeleteTask($event)"
+          (updateStatus)="onUpdateStatus($event)">
+        </app-task-item>
+        <div class="empty-column" *ngIf="doneTasks.length === 0">
+          <p>No completed tasks</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #emptyState>
+    <div class="empty-state">
+      <div class="empty-icon">📝</div>
+      <h3>{{ emptyMessage }}</h3>
+      <p>Create your first task to get started!</p>
+    </div>
+  </ng-template>
+</div>

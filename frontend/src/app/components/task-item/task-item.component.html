@@ -1,0 +1,57 @@
+<div class="task-card" [class.overdue]="isOverdue()">
+  <div class="task-header">
+    <h3 class="task-title">{{ task.title }}</h3>
+    <div class="task-actions">
+      <button class="btn btn-edit" (click)="onEdit()" title="Edit Task">
+        <span class="icon">✏️</span>
+      </button>
+      <button class="btn btn-delete" (click)="onDelete()" title="Delete Task">
+        <span class="icon">🗑️</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="task-body">
+    <p class="task-description" *ngIf="task.description">{{ task.description }}</p>
+    
+    <div class="task-meta">
+      <div class="task-due-date" *ngIf="task.dueDate">
+        <span class="icon">📅</span>
+        <span [class.overdue-text]="isOverdue()">{{ formatDate(task.dueDate) }}</span>
+      </div>
+      
+      <div class="task-priority">
+        <span class="priority-badge" [ngClass]="getPriorityClass()">
+          {{ task.priority }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="task-footer">
+    <div class="status-controls">
+      <button 
+        class="status-btn" 
+        [class.active]="task.status === Status.TODO"
+        (click)="onStatusChange(Status.TODO)">
+        To Do
+      </button>
+      <button 
+        class="status-btn" 
+        [class.active]="task.status === Status.IN_PROGRESS"
+        (click)="onStatusChange(Status.IN_PROGRESS)">
+        In Progress
+      </button>
+      <button 
+        class="status-btn" 
+        [class.active]="task.status === Status.DONE"
+        (click)="onStatusChange(Status.DONE)">
+        Done
+      </button>
+    </div>
+    
+    <div class="task-dates">
+      <small>Created: {{ formatDate(task.createdAt) }}</small>
+    </div>
+  </div>
+</div>

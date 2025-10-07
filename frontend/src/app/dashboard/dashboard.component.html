@@ -1,0 +1,131 @@
+<div class="dashboard-container">
+  <!-- Welcome Section -->
+  <div class="welcome-section" *ngIf="user$ | async as user">
+    <div class="welcome-header">
+      <h1>Welcome back, {{ user.name }}! 👋</h1>
+      <p>Manage your tasks and stay productive</p>
+    </div>
+  </div>
+
+  <!-- Task Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">📊</div>
+      <div class="stat-content">
+        <div class="stat-number">{{ taskStats.total }}</div>
+        <div class="stat-label">Total Tasks</div>
+      </div>
+    </div>
+    
+    <div class="stat-card todo">
+      <div class="stat-icon">📋</div>
+      <div class="stat-content">
+        <div class="stat-number">{{ taskStats.todo }}</div>
+        <div class="stat-label">To Do</div>
+      </div>
+    </div>
+    
+    <div class="stat-card in-progress">
+      <div class="stat-icon">🔄</div>
+      <div class="stat-content">
+        <div class="stat-number">{{ taskStats.inProgress }}</div>
+        <div class="stat-label">In Progress</div>
+      </div>
+    </div>
+    
+    <div class="stat-card done">
+      <div class="stat-icon">✅</div>
+      <div class="stat-content">
+        <div class="stat-number">{{ taskStats.done }}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+    </div>
+    
+    <div class="stat-card overdue" *ngIf="taskStats.overdue > 0">
+      <div class="stat-icon">⚠️</div>
+      <div class="stat-content">
+        <div class="stat-number">{{ taskStats.overdue }}</div>
+        <div class="stat-label">Overdue</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls Section -->
+  <div class="controls-section">
+    <div class="controls-left">
+      <button class="btn btn-primary" (click)="openTaskForm()">
+        <span class="icon">➕</span>
+        Add New Task
+      </button>
+      
+      <div class="search-box">
+        <input 
+          type="text" 
+          placeholder="Search tasks..." 
+          (input)="onSearchChange($event)"
+          class="search-input">
+        <span class="search-icon">🔍</span>
+      </div>
+    </div>
+
+    <div class="filter-tabs">
+      <button 
+        class="filter-tab" 
+        [class.active]="currentFilter === 'all'"
+        (click)="setFilter('all')">
+        All Tasks
+      </button>
+      <button 
+        class="filter-tab" 
+        [class.active]="currentFilter === Status.TODO"
+        (click)="setFilter(Status.TODO)">
+        To Do ({{ taskStats.todo }})
+      </button>
+      <button 
+        class="filter-tab" 
+        [class.active]="currentFilter === Status.IN_PROGRESS"
+        (click)="setFilter(Status.IN_PROGRESS)">
+        In Progress ({{ taskStats.inProgress }})
+      </button>
+      <button 
+        class="filter-tab" 
+        [class.active]="currentFilter === Status.DONE"
+        (click)="setFilter(Status.DONE)">
+        Done ({{ taskStats.done }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div class="error-message" *ngIf="error">
+    <span class="error-icon">❌</span>
+    {{ error }}
+    <button class="retry-btn" (click)="loadTasks()">Retry</button>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="loading-spinner"></div>
+    <p>Loading your tasks...</p>
+  </div>
+
+  <!-- Task List -->
+  <div class="tasks-section" *ngIf="!loading">
+    <app-task-list
+      [tasks]="filteredTasks"
+      [title]="currentFilter === 'all' ? 'All Tasks' : ''"
+      [emptyMessage]="getEmptyMessage()"
+      (editTask)="editTask($event)"
+      (deleteTask)="deleteTask($event)"
+      (updateStatus)="updateTaskStatus($event)">
+    </app-task-list>
+  </div>
+
+  <!-- Task Form Modal -->
+  <app-task-form
+    [isVisible]="showTaskForm"
+    [task]="editingTask"
+    (saveTask)="saveTask($event)"
+    (cancel)="closeTaskForm()">
+  </app-task-form>
+</div>
