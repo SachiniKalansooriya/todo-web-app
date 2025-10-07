@@ -102,12 +102,6 @@
               <button (click)="setView('board')" [class]="viewMode === 'board' ? 'bg-white text-blue-600 shadow-sm px-4 py-2 rounded-lg' : 'text-gray-600 px-4 py-2 rounded-lg'">Board</button>
               <button (click)="setView('calendar')" [class]="viewMode === 'calendar' ? 'bg-white text-blue-600 shadow-sm px-4 py-2 rounded-lg' : 'text-gray-600 px-4 py-2 rounded-lg'">Calendar</button>
             </div>
-
-            <!-- Overdue toggle -->
-            <label class="flex items-center gap-2 text-sm text-gray-600">
-              <input type="checkbox" [(ngModel)]="showOverdueOnly" (change)="applyFilters()" class="w-4 h-4" />
-              Show overdue only
-            </label>
           </div>
 
           <!-- Right: Search Bar -->
