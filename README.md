@@ -25,7 +25,7 @@ A full-stack todo management application built with Angular 19 (frontend) and Sp
 -  CRUD operations: create, read, update, delete tasks
 -  Priority levels: LOW, MEDIUM, HIGH
 -  Status tracking: TODO, IN_PROGRESS, DONE
--  Due date management and overdue detection
+-  Due date management 
 -  Task descriptions and optional categories
 
 ### Task Filtering & Search
