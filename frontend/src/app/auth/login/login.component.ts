@@ -1,38 +1,33 @@
-import { Component } from '@angular/core';
-import { FormBuilder, Validators, ReactiveFormsModule, FormGroup } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../auth.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule],
   templateUrl: './login.component.html'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   error = '';
-  form: FormGroup;
+  loading = false;
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
-    this.form = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
-    });
+  constructor(
+    private auth: AuthService, 
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+
+  ngOnInit() {
+    // Check if user is already logged in
+    if (this.auth.isLoggedIn()) {
+      this.router.navigate(['/']);
+    }
   }
 
-  onSubmit() {
-    if (this.form.invalid) return;
-    
-    const formValue = this.form.value;
-    if (formValue.email && formValue.password) {
-      this.auth.login({
-        email: formValue.email,
-        password: formValue.password
-      }).subscribe({
-        next: () => this.router.navigate(['/login']), // redirect after successful login
-        error: err => this.error = err?.error?.message || 'Login failed'
-      });
-    }
+  loginWithGoogle() {
+    this.loading = true;
+    this.auth.loginWithGoogle();
   }
 }

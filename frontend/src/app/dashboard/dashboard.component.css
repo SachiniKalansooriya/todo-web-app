@@ -1,0 +1,73 @@
+.dashboard-container {
+  padding: 40px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.welcome-section {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 30px;
+}
+
+.welcome-section h2 {
+  color: #333;
+  margin: 0 0 10px 0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.welcome-section p {
+  color: #666;
+  margin: 0 0 20px 0;
+  font-size: 16px;
+}
+
+.user-details {
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.detail-item {
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.todo-section {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.todo-section h3 {
+  color: #333;
+  margin: 0 0 15px 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.todo-section p {
+  color: #666;
+  margin: 0 0 20px 0;
+}
+
+.placeholder-content {
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.placeholder-item {
+  padding: 10px 0;
+  color: #555;
+  font-size: 16px;
+}
