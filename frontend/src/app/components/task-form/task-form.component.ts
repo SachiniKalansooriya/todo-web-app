@@ -12,6 +12,7 @@ import { Task, TaskRequest, Priority, Status } from '../../models/task.model';
 export class TaskFormComponent implements OnInit {
   @Input() task?: Task;
   @Input() isVisible = false;
+  @Input() prefillDate?: string;
   @Output() saveTask = new EventEmitter<TaskRequest>();
   @Output() cancel = new EventEmitter<void>();
 
@@ -47,6 +48,9 @@ export class TaskFormComponent implements OnInit {
         priority: this.task.priority,
         status: this.task.status
       };
+    } else if (this.isVisible && this.prefillDate) {
+      // If opening for new task and a prefill date is present, use it
+      this.formData.dueDate = this.formatDateForInput(this.prefillDate);
     } else {
       this.resetForm();
     }

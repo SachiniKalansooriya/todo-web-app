@@ -2,26 +2,79 @@
   <div class="max-w-7xl mx-auto">
     <!-- Header Section -->
     <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-gray-100 animate-fade-in">
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-       
-        
-        <!-- Quick Stats -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-4 text-white text-center transform hover:scale-105 transition-transform duration-200">
+      <div class="flex flex-col lg:flex-row gap-6">
+        <!-- Left Side: Stats Buttons (narrow cards) -->
+        <div class="flex flex-col gap-3 lg:w-auto">
+          <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl px-4 py-3 text-white text-center transform hover:scale-105 transition-transform duration-200 cursor-pointer w-full sm:w-40 mx-auto" (click)="setFilter('all')">
             <div class="text-2xl font-bold">{{ taskStats.total }}</div>
             <div class="text-blue-100 text-sm">Total</div>
           </div>
-          <div class="bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl p-4 text-white text-center transform hover:scale-105 transition-transform duration-200">
+          <div class="bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl px-4 py-3 text-white text-center transform hover:scale-105 transition-transform duration-200 cursor-pointer w-full sm:w-40 mx-auto" (click)="setFilter(Status.IN_PROGRESS)">
             <div class="text-2xl font-bold">{{ taskStats.inProgress }}</div>
             <div class="text-yellow-100 text-sm">In Progress</div>
           </div>
-          <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-4 text-white text-center transform hover:scale-105 transition-transform duration-200">
+          <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl px-4 py-3 text-white text-center transform hover:scale-105 transition-transform duration-200 cursor-pointer w-full sm:w-40 mx-auto" (click)="setFilter(Status.DONE)">
             <div class="text-2xl font-bold">{{ taskStats.done }}</div>
             <div class="text-green-100 text-sm">Completed</div>
           </div>
-          <div class="bg-gradient-to-r from-red-500 to-red-600 rounded-xl p-4 text-white text-center transform hover:scale-105 transition-transform duration-200" *ngIf="taskStats.overdue > 0">
-            <div class="text-2xl font-bold">{{ taskStats.overdue }}</div>
-            <div class="text-red-100 text-sm">Overdue</div>
+        </div>
+
+        <!-- Right Side: Upcoming Tasks (6 tasks in 2 columns) -->
+        <div class="lg:w-2/3">
+          <div class="bg-gradient-to-r from-white to-gray-50 border border-gray-100 rounded-xl p-4 h-full">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h4 class="text-lg font-semibold">Upcoming Tasks</h4>
+                <p class="text-sm text-gray-500">Next 6 tasks by due date (excluding completed)</p>
+              </div>
+              <div class="text-sm text-gray-600">Progress: {{ upcomingOverallProgress }}%</div>
+            </div>
+
+            <div *ngIf="upcomingTasks.length === 0" class="text-sm text-gray-500 py-8 text-center">
+              No upcoming tasks. Add one to get started.
+            </div>
+
+            <div *ngIf="upcomingTasks.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Left Column: First 3 tasks -->
+              <div class="space-y-3">
+                <div *ngFor="let ut of upcomingTasksLeft" class="border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
+                  <div class="font-medium text-sm mb-1">{{ ut.title }}</div>
+                  <div class="text-xs text-gray-500 mb-2">Due: {{ ut.dueDate | date:'MMM d' }}</div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs px-2 py-1 rounded" 
+                          [class]="ut.priority === Priority.HIGH ? 'bg-red-100 text-red-700' : 
+                                   ut.priority === Priority.MEDIUM ? 'bg-yellow-100 text-yellow-700' : 
+                                   'bg-green-100 text-green-700'">
+                      {{ ut.priority }}
+                    </span>
+                    <span class="text-xs" 
+                          [class]="ut.status === Status.IN_PROGRESS ? 'text-orange-600 font-semibold' : 'text-gray-500'">
+                      {{ ut.status === Status.IN_PROGRESS ? 'In Progress' : 'To Do' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Next 3 tasks -->
+              <div class="space-y-3">
+                <div *ngFor="let ut of upcomingTasksRight" class="border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
+                  <div class="font-medium text-sm mb-1">{{ ut.title }}</div>
+                  <div class="text-xs text-gray-500 mb-2">Due: {{ ut.dueDate | date:'MMM d' }}</div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs px-2 py-1 rounded" 
+                          [class]="ut.priority === Priority.HIGH ? 'bg-red-100 text-red-700' : 
+                                   ut.priority === Priority.MEDIUM ? 'bg-yellow-100 text-yellow-700' : 
+                                   'bg-green-100 text-green-700'">
+                      {{ ut.priority }}
+                    </span>
+                    <span class="text-xs" 
+                          [class]="ut.status === Status.IN_PROGRESS ? 'text-orange-600 font-semibold' : 'text-gray-500'">
+                      {{ ut.status === Status.IN_PROGRESS ? 'In Progress' : 'To Do' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -29,22 +82,37 @@
 
     <!-- Controls Section -->
     <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-gray-100 animate-slide-in">
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <!-- Left Controls -->
-        <div class="flex flex-col sm:flex-row gap-4">
-          <!-- Add Task Button -->
-          <button
-            (click)="openTaskForm()"
-            class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
-          >
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Add New Task
-          </button>
+      <div class="flex flex-col gap-6">
+        <!-- Top Row: Main Actions, View Toggle and Search (improved alignment) -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <!-- Add Task Button -->
+            <button
+              (click)="openTaskForm()"
+              class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+            >
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Add Task
+            </button>
 
-          <!-- Search Bar -->
-          <div class="relative flex-1 min-w-64">
+            <!-- View Toggle -->
+            <div class="inline-flex items-center bg-gray-100 rounded-xl p-1">
+              <button (click)="setView('board')" [class]="viewMode === 'board' ? 'bg-white text-blue-600 shadow-sm px-4 py-2 rounded-lg' : 'text-gray-600 px-4 py-2 rounded-lg'">Board</button>
+              <button (click)="setView('list')" [class]="viewMode === 'list' ? 'bg-white text-blue-600 shadow-sm px-4 py-2 rounded-lg' : 'text-gray-600 px-4 py-2 rounded-lg'">List</button>
+              <button (click)="setView('calendar')" [class]="viewMode === 'calendar' ? 'bg-white text-blue-600 shadow-sm px-4 py-2 rounded-lg' : 'text-gray-600 px-4 py-2 rounded-lg'">Calendar</button>
+            </div>
+
+            <!-- Overdue toggle -->
+            <label class="flex items-center gap-2 text-sm text-gray-600">
+              <input type="checkbox" [(ngModel)]="showOverdueOnly" (change)="applyFilters()" class="w-4 h-4" />
+              Show overdue only
+            </label>
+          </div>
+
+          <!-- Right: Search Bar -->
+          <div class="relative max-w-md w-full md:max-w-lg">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -59,57 +127,146 @@
           </div>
         </div>
 
-        <!-- Advanced Filters -->
-        <div class="flex items-center gap-3">
-          <select [(ngModel)]="filterPriority" (change)="applyFilters()" class="px-3 py-2 border rounded-lg">
-            <option value="ALL">All Priorities</option>
-            <option [value]="Priority.HIGH">High</option>
-            <option [value]="Priority.MEDIUM">Medium</option>
-            <option [value]="Priority.LOW">Low</option>
-          </select>
+  <!-- Second Row: Filters and Sort -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <!-- Left: Advanced Filters -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <span class="text-sm font-medium text-gray-600">Filters:</span>
+            
+            <!-- Priority Filter -->
+            <select [(ngModel)]="filterPriority" (change)="applyFilters()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm min-w-32">
+              <option value="ALL">All Priorities</option>
+              <option [value]="Priority.HIGH">🔴 High</option>
+              <option [value]="Priority.MEDIUM">🟡 Medium</option>
+              <option [value]="Priority.LOW">🟢 Low</option>
+            </select>
 
-          <input type="text" placeholder="Category" [(ngModel)]="filterCategory" (input)="applyFilters()" class="px-3 py-2 border rounded-lg" />
+            <!-- Date Range Filters -->
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-gray-500">From:</span>
+              <input type="date" [(ngModel)]="filterDueDateFrom" (change)="applyFilters()" 
+                     class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm" />
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-gray-500">To:</span>
+              <input type="date" [(ngModel)]="filterDueDateTo" (change)="applyFilters()" 
+                     class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm" />
+            </div>
+          </div>
 
-          <input type="date" [(ngModel)]="filterDueDateFrom" (change)="applyFilters()" class="px-3 py-2 border rounded-lg" />
-          <input type="date" [(ngModel)]="filterDueDateTo" (change)="applyFilters()" class="px-3 py-2 border rounded-lg" />
+          <!-- Right: Sort Options -->
+          <div class="flex items-center gap-3">
+            <span class="text-sm font-medium text-gray-600">Sort by:</span>
+            <select [(ngModel)]="sortBy" (change)="applyFilters()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm min-w-40">
+              <option value="RECENT">📅 Recently added</option>
+              <option value="DEADLINE">⏰ Upcoming deadlines</option>
+              <option value="PRIORITY">🎯 Priority level</option>
+            </select>
 
-          <select [(ngModel)]="sortBy" (change)="applyFilters()" class="px-3 py-2 border rounded-lg">
-            <option value="RECENT">Recently added</option>
-            <option value="DEADLINE">Upcoming deadlines</option>
-            <option value="PRIORITY">Priority level</option>
-          </select>
+            <!-- Clear Filters Button -->
+            <button (click)="clearFilters()" class="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200">
+              Clear
+            </button>
+          </div>
         </div>
 
-        <!-- Filter Tabs -->
-        <div class="flex bg-gray-100 rounded-xl p-1 overflow-x-auto">
-          <button
-            (click)="setFilter('all')"
-            [class]="currentFilter === 'all' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
-            class="px-4 py-2 rounded-lg font-medium transition-all duration-200 whitespace-nowrap"
-          >
-            All Tasks
-          </button>
-          <button
-            (click)="setFilter(Status.TODO)"
-            [class]="currentFilter === Status.TODO ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
-            class="px-4 py-2 rounded-lg font-medium transition-all duration-200 whitespace-nowrap"
-          >
-            To Do ({{ taskStats.todo }})
-          </button>
-          <button
-            (click)="setFilter(Status.IN_PROGRESS)"
-            [class]="currentFilter === Status.IN_PROGRESS ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
-            class="px-4 py-2 rounded-lg font-medium transition-all duration-200 whitespace-nowrap"
-          >
-            In Progress ({{ taskStats.inProgress }})
-          </button>
-          <button
-            (click)="setFilter(Status.DONE)"
-            [class]="currentFilter === Status.DONE ? 'bg-white text-green-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
-            class="px-4 py-2 rounded-lg font-medium transition-all duration-200 whitespace-nowrap"
-          >
-            Done ({{ taskStats.done }})
-          </button>
+        <!-- Calendar Panel (shown in calendar view) -->
+        <div *ngIf="viewMode === 'calendar'" class="mt-4">
+          <div class="bg-white border border-gray-100 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <button (click)="prevMonth()" class="px-3 py-1 border rounded">◀</button>
+                <div class="text-sm font-semibold">{{ calendarYear }} — {{ ['January','February','March','April','May','June','July','August','September','October','November','December'][calendarMonth] }}</div>
+                <button (click)="nextMonth()" class="px-3 py-1 border rounded">▶</button>
+              </div>
+              <div>
+                <button (click)="goToToday()" class="px-3 py-1 border rounded">Today</button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-7 gap-2 text-center text-sm text-gray-600 mb-3">
+              <div *ngFor="let d of ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']" class="font-medium">{{d}}</div>
+            </div>
+            <div class="grid grid-cols-7 gap-2">
+              <div *ngFor="let day of calendarDays" (click)="onCalendarDayClick(day.date)"
+                   [class]="'h-20 p-2 border rounded-lg relative cursor-pointer ' + (day.date === todayIso ? 'bg-blue-50 ring-2 ring-blue-300' : 'bg-gray-50 hover:bg-gray-100')">
+                <div class="text-xs text-gray-500">{{ day.label }}</div>
+                <div *ngIf="day.tasks?.length" class="absolute left-2 right-2 bottom-2 text-xs">
+                  <div *ngFor="let t of day.tasks | slice:0:2" class="truncate bg-blue-50 text-blue-700 rounded px-2 py-1 mb-1">{{ t.title }}</div>
+                  <div *ngIf="(day.tasks?.length ?? 0) > 2" class="text-xs text-gray-400">+{{ (day.tasks?.length ?? 0) - 2 }} more</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Calendar Day Modal -->
+          <div *ngIf="showDateModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-auto p-6" (click)="$event.stopPropagation()">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <h3 class="text-xl font-bold">Tasks on {{ selectedDateIso }}</h3>
+                  <p class="text-sm text-gray-500 mt-1">Manage tasks for this date or create a new one.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button (click)="openCreateForSelectedDate()" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Add Task</button>
+                  <button (click)="closeDateModal()" class="px-3 py-2 border rounded-lg">Close</button>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <div *ngIf="selectedDateTasks.length === 0" class="text-center py-8 text-gray-600">
+                  <p>No tasks scheduled for this date.</p>
+                </div>
+
+                <div *ngFor="let t of selectedDateTasks" class="border-b last:border-b-0 py-3 flex items-center justify-between gap-3">
+                  <div>
+                    <div class="font-medium">{{ t.title }}</div>
+                    <div class="text-xs text-gray-500">{{ t.priority }} • {{ t.status }}</div>
+                    <div class="text-xs text-gray-400">{{ t.description }}</div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button (click)="openEditFromModal(t)" class="px-3 py-1 border rounded-md text-sm">Edit</button>
+                    <button (click)="deleteTask(t.id)" class="px-3 py-1 bg-red-600 text-white rounded-md text-sm">Delete</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Third Row: Filter Tabs -->
+        <div class="flex justify-center">
+          <div class="flex bg-gray-100 rounded-xl p-1 overflow-x-auto">
+            <button
+              (click)="setFilter('all')"
+              [class]="currentFilter === 'all' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+              class="px-6 py-3 rounded-lg font-medium transition-all duration-200 whitespace-nowrap"
+            >
+              All Tasks
+            </button>
+            <button
+              (click)="setFilter(Status.TODO)"
+              [class]="currentFilter === Status.TODO ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+              class="px-6 py-3 rounded-lg font-medium transition-all duration-200 whitespace-nowrap"
+            >
+              📋 To Do ({{ taskStats.todo }})
+            </button>
+            <button
+              (click)="setFilter(Status.IN_PROGRESS)"
+              [class]="currentFilter === Status.IN_PROGRESS ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+              class="px-6 py-3 rounded-lg font-medium transition-all duration-200 whitespace-nowrap"
+            >
+              ⚡ In Progress ({{ taskStats.inProgress }})
+            </button>
+            <button
+              (click)="setFilter(Status.DONE)"
+              [class]="currentFilter === Status.DONE ? 'bg-white text-green-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+              class="px-6 py-3 rounded-lg font-medium transition-all duration-200 whitespace-nowrap"
+            >
+              ✅ Done ({{ taskStats.done }})
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -178,6 +335,7 @@
 <app-task-form
   [isVisible]="showTaskForm"
   [task]="editingTask"
+  [prefillDate]="calendarPrefillDate"
   (saveTask)="saveTask($event)"
   (cancel)="closeTaskForm()">
 </app-task-form>
