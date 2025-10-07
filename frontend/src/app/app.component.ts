@@ -36,6 +36,10 @@ export class AppComponent implements OnInit {
   }
 
   logout() {
+    // Ask user to confirm logout
+    const confirmed = window.confirm('Do you want to log out?');
+    if (!confirmed) return;
+
     this.authService.logout().subscribe(() => {
       this.router.navigate(['/login']);
     });

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { tap } from 'rxjs/operators';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, firstValueFrom } from 'rxjs';
 
 interface AuthResponse { token: string; }
 interface User {
@@ -22,7 +22,8 @@ export class AuthService {
   public user$ = this.userSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    this.loadUserFromToken();
+    // Don't automatically load here; allow an explicit initialize() to be called
+    // so the application can wait for auth to be initialized on startup.
   }
 
   // Google OAuth2 login - redirect to backend
@@ -44,17 +45,30 @@ export class AuthService {
     );
   }
 
-  private loadUserFromToken(): void {
-    if (this.isLoggedIn()) {
-      this.getCurrentUser().subscribe({
-        next: (user) => this.userSubject.next(user),
-        error: () => {
-          // Clear invalid token
-          localStorage.removeItem('token');
-          this.userSubject.next(null);
-        }
-      });
+  private loadUserFromToken(): Promise<void> {
+    if (!this.isLoggedIn()) {
+      this.userSubject.next(null);
+      return Promise.resolve();
     }
+
+    // Convert observable to promise so callers can await initialization
+    return firstValueFrom(this.getCurrentUser()).then(
+      (user) => {
+        this.userSubject.next(user as User);
+      }
+    ).catch(() => {
+      // Clear invalid token
+      localStorage.removeItem('token');
+      this.userSubject.next(null);
+    });
+  }
+
+  /**
+   * Initialize auth state during app bootstrap. Returns a Promise that resolves
+   * when user info has been loaded (or cleared). Safe to call multiple times.
+   */
+  initialize(): Promise<void> {
+    return this.loadUserFromToken();
   }
 
   setToken(token: string): void { 
