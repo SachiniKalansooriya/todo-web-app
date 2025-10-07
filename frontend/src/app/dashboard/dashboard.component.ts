@@ -35,6 +35,14 @@ export class DashboardComponent implements OnInit {
   // Filter and view state
   currentFilter: 'all' | Status = 'all';
   searchTerm = '';
+  // Advanced filters
+  filterPriority: Priority | 'ALL' = 'ALL';
+  filterCategory: string = '';
+  filterDueDateFrom: string = '';
+  filterDueDateTo: string = '';
+
+  // Sorting
+  sortBy: 'RECENT' | 'DEADLINE' | 'PRIORITY' = 'RECENT';
   
   // Stats
   taskStats: TaskStats = {
@@ -166,6 +174,46 @@ export class DashboardComponent implements OnInit {
         task.title.toLowerCase().includes(term) || 
         (task.description && task.description.toLowerCase().includes(term))
       );
+    }
+
+    // Apply priority filter
+    if (this.filterPriority !== 'ALL') {
+      filtered = filtered.filter(t => t.priority === this.filterPriority);
+    }
+
+    // Apply category filter
+    if (this.filterCategory) {
+      const cat = this.filterCategory.toLowerCase();
+      filtered = filtered.filter(t => (t.category || '').toLowerCase().includes(cat));
+    }
+
+    // Apply due date range
+    if (this.filterDueDateFrom) {
+      const from = new Date(this.filterDueDateFrom);
+      filtered = filtered.filter(t => t.dueDate && new Date(t.dueDate) >= from);
+    }
+    if (this.filterDueDateTo) {
+      const to = new Date(this.filterDueDateTo);
+      filtered = filtered.filter(t => t.dueDate && new Date(t.dueDate) <= to);
+    }
+
+    // Apply sorting
+    switch (this.sortBy) {
+      case 'RECENT':
+        filtered.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        break;
+      case 'DEADLINE':
+        filtered.sort((a,b) => {
+          if (!a.dueDate && !b.dueDate) return 0;
+          if (!a.dueDate) return 1;
+          if (!b.dueDate) return -1;
+          return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+        });
+        break;
+      case 'PRIORITY':
+        const rank = (p: Priority) => p === Priority.HIGH ? 0 : p === Priority.MEDIUM ? 1 : 2;
+        filtered.sort((a,b) => rank(a.priority) - rank(b.priority));
+        break;
     }
     
     this.filteredTasks = filtered;

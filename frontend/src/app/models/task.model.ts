@@ -5,6 +5,7 @@ export interface Task {
   dueDate?: string;
   priority: Priority;
   status: Status;
+  category?: string;
   createdAt: string;
   updatedAt: string;
   overdue: boolean;

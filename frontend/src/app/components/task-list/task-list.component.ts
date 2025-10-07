@@ -44,4 +44,23 @@ export class TaskListComponent {
   get doneTasks(): Task[] {
     return this.getTasksByStatus(Status.DONE);
   }
+
+  onDragOver(ev: DragEvent) {
+    ev.preventDefault();
+    // optionally add visual feedback
+  }
+
+  onDrop(ev: DragEvent, targetStatus: 'TODO' | 'IN_PROGRESS' | 'DONE') {
+    ev.preventDefault();
+    try {
+      const idStr = ev.dataTransfer?.getData('text/plain');
+      if (!idStr) return;
+      const id = Number(idStr);
+      // emit an updateStatus event with the new status
+      const status = (targetStatus === 'TODO' ? Status.TODO : (targetStatus === 'IN_PROGRESS' ? Status.IN_PROGRESS : Status.DONE));
+      this.updateStatus.emit({ id, status });
+    } catch (e) {
+      // ignore
+    }
+  }
 }

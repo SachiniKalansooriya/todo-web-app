@@ -13,6 +13,7 @@ export class TaskItemComponent {
   @Output() editTask = new EventEmitter<Task>();
   @Output() deleteTask = new EventEmitter<number>();
   @Output() updateStatus = new EventEmitter<{id: number, status: Status}>();
+  @Output() dragStartEvent = new EventEmitter<{id: number, status: Status}>();
 
   Status = Status;
   Priority = Priority;
@@ -29,6 +30,17 @@ export class TaskItemComponent {
 
   onStatusChange(status: Status) {
     this.updateStatus.emit({ id: this.task.id, status });
+  }
+
+  onDragStart(ev: DragEvent) {
+    // set dataTransfer so drop target can read the task id
+    try {
+      ev.dataTransfer?.setData('text/plain', String(this.task.id));
+      ev.dataTransfer?.setData('application/task-status', String(this.task.status));
+    } catch (e) {
+      // ignore
+    }
+    this.dragStartEvent.emit({ id: this.task.id, status: this.task.status });
   }
 
   getTaskCardClasses(): string {

@@ -3,14 +3,7 @@
     <!-- Header Section -->
     <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-gray-100 animate-fade-in">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-        <div class="mb-4 lg:mb-0" *ngIf="user$ | async as user">
-          <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-            Welcome back, {{ user.name }}! 👋
-          </h1>
-          <p class="text-gray-600 text-lg">
-            Manage your tasks efficiently and stay productive
-          </p>
-        </div>
+       
         
         <!-- Quick Stats -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -64,6 +57,27 @@
               class="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
             >
           </div>
+        </div>
+
+        <!-- Advanced Filters -->
+        <div class="flex items-center gap-3">
+          <select [(ngModel)]="filterPriority" (change)="applyFilters()" class="px-3 py-2 border rounded-lg">
+            <option value="ALL">All Priorities</option>
+            <option [value]="Priority.HIGH">High</option>
+            <option [value]="Priority.MEDIUM">Medium</option>
+            <option [value]="Priority.LOW">Low</option>
+          </select>
+
+          <input type="text" placeholder="Category" [(ngModel)]="filterCategory" (input)="applyFilters()" class="px-3 py-2 border rounded-lg" />
+
+          <input type="date" [(ngModel)]="filterDueDateFrom" (change)="applyFilters()" class="px-3 py-2 border rounded-lg" />
+          <input type="date" [(ngModel)]="filterDueDateTo" (change)="applyFilters()" class="px-3 py-2 border rounded-lg" />
+
+          <select [(ngModel)]="sortBy" (change)="applyFilters()" class="px-3 py-2 border rounded-lg">
+            <option value="RECENT">Recently added</option>
+            <option value="DEADLINE">Upcoming deadlines</option>
+            <option value="PRIORITY">Priority level</option>
+          </select>
         </div>
 
         <!-- Filter Tabs -->
