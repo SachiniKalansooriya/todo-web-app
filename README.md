@@ -1,73 +1,101 @@
 # Todo Web Application
+🎯 **# Overview**
 
-A simple todo web application built with modern web technologies.
+A full-stack todo management application built with Angular 19 frontend and Spring Boot 3.5.6 backend, featuring Google OAuth2 authentication, MySQL database integration, and modern responsive design.
 
-## Features
+**1. Authentication & Security**
+Google OAuth2 Integration
 
-- Add new todos
-- Mark todos as complete
-- Delete todos
-- Filter todos by status
+Implemented using Spring Security OAuth2 Client
+JWT token-based authentication for API calls
+Secure user session management
+Custom OAuth2 authentication success handler
 
-## Getting Started
+**JWT Token Management**
 
-### Prerequisites
+Custom JWT utility class for token generation/validation
+Token expiration handling (24-hour validity)
+Bearer token authentication for API endpoints
 
-- Node.js (version 14 or higher)
-- npm or yarn
+**2. User Management**
 
-### Installation
+User Entity & Model
+User profile with Google ID integration
+Profile picture support from Google account
+Email-based user identification
+Automatic user creation on first login
 
-1. Clone the repository:
-   ```
-   git clone https://github.com/SachiniKalansooriya/todo-webapp.git
-   ```
+**3. Task Management System**
 
-2. Navigate to the project directory:
-   ```
-   cd todo-webapp
-   ```
+Advanced Task Features
 
-3. Install dependencies:
-   ```
-   npm install
-   ```
+CRUD operations (Create, Read, Update, Delete)
+Task priority levels (LOW, MEDIUM, HIGH)
+Task status tracking (TODO, IN_PROGRESS, DONE)
+Due date management with overdue detection
+Task descriptions and categorization
 
-4. Start the development server:
-   ```
-   npm start
-   ```
+**Task Filtering & Search**
 
-## Project Structure
+Filter by status (All, Todo, In Progress, Done)
+Filter by priority level
+Search functionality by task title/description
+Date range filtering
+Overdue tasks filter
 
-```
-todo-webapp/
-├── public/
-│   ├── index.html
-│   └── style.css
-├── src/
-│   ├── js/
-│   │   └── app.js
-│   └── components/
-├── package.json
-└── README.md
-```
+**4. User Interface Features**
 
-## Technologies Used
+Multiple View Modes
 
-- HTML5
-- CSS3
-- JavaScript (ES6+)
-- Local Storage for data persistence
+Board view for Kanban-style task management
+Calendar view for date-based task visualization
+Responsive design with Tailwind CSS
+Interactive Components
 
-## Contributing
+Task form component for create/edit operations
+Task list component with dynamic filtering
+Task item component with inline actions
+Modal-based task editing
 
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+**5. Real-time Data Management**
 
-## License
+Angular Services
+Task service for API communication
+Auth service for authentication management
+Reactive state management with RxJS observables
+HTTP interceptors for token injection
 
-This project is licensed under the MIT License.
+**Database Design**
+MySQL Database with JPA/Hibernate ORM
+Users Table: Profile information and Google OAuth data
+Tasks Table: Task details with user relationships
+Automatic timestamps for creation and update tracking
+
+**Calendar Integration for due date visualization
+Real-time Updates using observables
+Form Validation with Angular reactive forms
+Error Handling throughout the application
+Loading States for better UX**
+
+🎨 **Design & UX Features**
+Modern UI with Tailwind CSS styling
+Responsive design for mobile and desktop
+Interactive animations and smooth transitions
+Intuitive navigation with clear visual hierarchy
+Color-coded priorities and status indicators
+
+**🔧 **Development Tools & Technologies**
+Backend Stack**
+Spring Boot 3.5.6 with Java 17
+Spring Security for OAuth2 authentication
+Spring Data JPA for database operations
+JWT for stateless authentication
+MySQL database with connection pooling
+Maven for dependency management
+
+**Frontend Stack**
+Angular 19 with TypeScript
+RxJS for reactive programming
+Tailwind CSS for styling
+Angular Router for navigation
+HTTP Client for API communication
