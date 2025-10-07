@@ -40,7 +40,7 @@ export class DashboardComponent implements OnInit {
   filterDueDateFrom: string = '';
   filterDueDateTo: string = '';
   // Additional UI state
-  viewMode: 'board' | 'list' | 'calendar' = 'board';
+  viewMode: 'board' | 'calendar' = 'board';
   showOverdueOnly = false;
   calendarDays: Array<{date: string | null, label: string, tasks?: Task[]}> = [];
   calendarPrefillDate?: string;
@@ -53,10 +53,6 @@ export class DashboardComponent implements OnInit {
   calendarYear: number;
   calendarMonth: number; // 0-based month index
 
-  // Upcoming tasks (next 5) and progress
-  upcomingTasks: Task[] = [];
-  upcomingOverallProgress = 0;
-
   // Sorting
   sortBy: 'RECENT' | 'DEADLINE' | 'PRIORITY' = 'RECENT';
   
@@ -68,6 +64,12 @@ export class DashboardComponent implements OnInit {
     done: 0,
     overdue: 0
   };
+
+  // Upcoming tasks (next 6 excluding completed)
+  upcomingTasks: Task[] = [];
+  upcomingTasksLeft: Task[] = [];
+  upcomingTasksRight: Task[] = [];
+  upcomingOverallProgress = 0; // percent
 
   constructor(
     private authService: AuthService,
@@ -98,7 +100,7 @@ export class DashboardComponent implements OnInit {
         this.applyFilters();
         this.calculateStats();
         this.generateCalendar();
-        this.updateUpcoming();
+        this.computeUpcoming();
         this.loading = false;
       },
       error: (err) => {
@@ -107,45 +109,6 @@ export class DashboardComponent implements OnInit {
         console.error('Error loading tasks:', err);
       }
     });
-  }
-
-  private taskProgressValue(task: Task): number {
-    switch (task.status) {
-      case Status.DONE:
-        return 100;
-      case Status.IN_PROGRESS:
-        return 50;
-      default:
-        return 0;
-    }
-  }
-
-  private updateUpcoming() {
-    const now = new Date();
-    // tasks with dueDate, excluding completed tasks, sorted by due date ascending
-    const tasksWithDue = this.tasks
-      .filter(t => !!t.dueDate && t.status !== Status.DONE)
-      .map(t => ({ t, due: new Date(t.dueDate!) }))
-      .sort((a,b) => a.due.getTime() - b.due.getTime())
-      .map(x => x.t);
-
-    this.upcomingTasks = tasksWithDue.slice(0, 6);
-
-    if (this.upcomingTasks.length === 0) {
-      this.upcomingOverallProgress = 0;
-      return;
-    }
-
-    const total = this.upcomingTasks.reduce((sum, t) => sum + this.taskProgressValue(t), 0);
-    this.upcomingOverallProgress = Math.round(total / this.upcomingTasks.length);
-  }
-
-  get upcomingTasksLeft(): Task[] {
-    return this.upcomingTasks.slice(0, 3);
-  }
-
-  get upcomingTasksRight(): Task[] {
-    return this.upcomingTasks.slice(3, 6);
   }
 
   openTaskForm() {
@@ -295,7 +258,7 @@ export class DashboardComponent implements OnInit {
     this.applyFilters();
   }
 
-  setView(view: 'board' | 'list' | 'calendar') {
+  setView(view: 'board' | 'calendar') {
     this.viewMode = view;
     if (view === 'calendar') {
       this.generateCalendar();
@@ -361,8 +324,30 @@ export class DashboardComponent implements OnInit {
     if (!dateIso) return;
     // Prepare and open calendar day modal showing tasks for the selected date
     this.selectedDateIso = dateIso;
-    this.selectedDateTasks = this.tasks.filter(t => t.dueDate && new Date(t.dueDate).toISOString().split('T')[0] === dateIso);
+    this.selectedDateTasks = this.tasks.filter(t => t.dueDate && this.formatDateLocal(t.dueDate) === dateIso);
     this.showDateModal = true;
+  }
+
+  // Compute upcoming 6 tasks excluding completed and split into left/right columns
+  private computeUpcoming() {
+    const upcoming = this.tasks
+      .filter(t => t.dueDate && t.status !== Status.DONE)
+      .map(t => ({ t, due: new Date(t.dueDate!) }))
+      .sort((a,b) => a.due.getTime() - b.due.getTime())
+      .slice(0, 6)
+      .map(x => x.t);
+
+    this.upcomingTasks = upcoming;
+    this.upcomingTasksLeft = upcoming.slice(0, 3);
+    this.upcomingTasksRight = upcoming.slice(3, 6);
+
+    // Progress: percent of upcoming tasks that are IN_PROGRESS or DONE? The user asked 'progress works' so we'll calculate percent of tasks in progress or done among upcoming.
+    if (upcoming.length === 0) {
+      this.upcomingOverallProgress = 0;
+    } else {
+      const doneOrProg = upcoming.filter(t => t.status === Status.IN_PROGRESS || t.status === Status.DONE).length;
+      this.upcomingOverallProgress = Math.round((doneOrProg / upcoming.length) * 100);
+    }
   }
 
   closeDateModal() {
