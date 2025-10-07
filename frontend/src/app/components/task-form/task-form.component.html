@@ -1,70 +1,160 @@
-<div class="modal-overlay" *ngIf="isVisible" (click)="onCancel()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2>{{ isEditMode ? 'Edit Task' : 'Create New Task' }}</h2>
-      <button class="close-btn" (click)="onCancel()">✕</button>
-    </div>
-
-    <form (ngSubmit)="onSubmit()" class="task-form">
-      <div class="form-group">
-        <label for="title">Title *</label>
-        <input
-          type="text"
-          id="title"
-          [(ngModel)]="formData.title"
-          name="title"
-          required
-          placeholder="Enter task title"
-          class="form-input">
-      </div>
-
-      <div class="form-group">
-        <label for="description">Description</label>
-        <textarea
-          id="description"
-          [(ngModel)]="formData.description"
-          name="description"
-          placeholder="Enter task description"
-          rows="3"
-          class="form-textarea"></textarea>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="priority">Priority</label>
-          <select id="priority" [(ngModel)]="formData.priority" name="priority" class="form-select">
-            <option [value]="Priority.LOW">Low</option>
-            <option [value]="Priority.MEDIUM">Medium</option>
-            <option [value]="Priority.HIGH">High</option>
-          </select>
+<!-- Modal Overlay -->
+<div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 animate-fade-in" 
+     *ngIf="isVisible" 
+     (click)="onCancel()">
+  
+  <!-- Modal Content -->
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-slide-in" 
+       (click)="$event.stopPropagation()">
+    
+    <!-- Modal Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 text-white">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-bold">
+            {{ isEditMode ? 'Edit Task' : 'Create New Task' }}
+          </h2>
+          <p class="text-blue-100 text-sm mt-1">
+            {{ isEditMode ? 'Update your task details' : 'Add a new task to your workflow' }}
+          </p>
         </div>
-
-        <div class="form-group">
-          <label for="status">Status</label>
-          <select id="status" [(ngModel)]="formData.status" name="status" class="form-select">
-            <option [value]="Status.TODO">To Do</option>
-            <option [value]="Status.IN_PROGRESS">In Progress</option>
-            <option [value]="Status.DONE">Done</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="dueDate">Due Date</label>
-        <input
-          type="datetime-local"
-          id="dueDate"
-          [(ngModel)]="formData.dueDate"
-          name="dueDate"
-          class="form-input">
-      </div>
-
-      <div class="form-actions">
-        <button type="button" class="btn btn-cancel" (click)="onCancel()">Cancel</button>
-        <button type="submit" class="btn btn-primary" [disabled]="!formData.title.trim()">
-          {{ isEditMode ? 'Update Task' : 'Create Task' }}
+        <button 
+          (click)="onCancel()"
+          class="text-white hover:bg-blue-800 rounded-lg p-2 transition-colors duration-200">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
         </button>
       </div>
-    </form>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="px-6 py-6 max-h-[calc(90vh-140px)] overflow-y-auto">
+      <form (ngSubmit)="onSubmit()" class="space-y-6">
+        
+        <!-- Title Field -->
+        <div class="space-y-2">
+          <label for="title" class="block text-sm font-semibold text-gray-700">
+            Task Title *
+          </label>
+          <input
+            type="text"
+            id="title"
+            [(ngModel)]="formData.title"
+            name="title"
+            required
+            placeholder="Enter a clear, descriptive title for your task"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white text-gray-900 placeholder-gray-500">
+        </div>
+
+        <!-- Description Field -->
+        <div class="space-y-2">
+          <label for="description" class="block text-sm font-semibold text-gray-700">
+            Description
+          </label>
+          <textarea
+            id="description"
+            [(ngModel)]="formData.description"
+            name="description"
+            placeholder="Provide additional details about the task (optional)"
+            rows="4"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white text-gray-900 placeholder-gray-500 resize-none"></textarea>
+        </div>
+
+        <!-- Priority and Status Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Priority Field -->
+          <div class="space-y-2">
+            <label for="priority" class="block text-sm font-semibold text-gray-700">
+              Priority Level
+            </label>
+            <div class="relative">
+              <select 
+                id="priority" 
+                [(ngModel)]="formData.priority" 
+                name="priority" 
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white text-gray-900 appearance-none cursor-pointer">
+                <option [value]="Priority.LOW">🟢 Low Priority</option>
+                <option [value]="Priority.MEDIUM">🟡 Medium Priority</option>
+                <option [value]="Priority.HIGH">🔴 High Priority</option>
+              </select>
+              <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Status Field -->
+          <div class="space-y-2">
+            <label for="status" class="block text-sm font-semibold text-gray-700">
+              Current Status
+            </label>
+            <div class="relative">
+              <select 
+                id="status" 
+                [(ngModel)]="formData.status" 
+                name="status" 
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white text-gray-900 appearance-none cursor-pointer">
+                <option [value]="Status.TODO">📋 To Do</option>
+                <option [value]="Status.IN_PROGRESS">🔄 In Progress</option>
+                <option [value]="Status.DONE">✅ Completed</option>
+              </select>
+              <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Due Date Field -->
+        <div class="space-y-2">
+          <label for="dueDate" class="block text-sm font-semibold text-gray-700">
+            Due Date & Time
+          </label>
+          <div class="relative">
+            <input
+              type="datetime-local"
+              id="dueDate"
+              [(ngModel)]="formData.dueDate"
+              name="dueDate"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white text-gray-900">
+            <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+          <p class="text-xs text-gray-500">
+            Set a deadline to help prioritize and track your task progress
+          </p>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-100">
+          <button 
+            type="button" 
+            (click)="onCancel()"
+            class="sm:order-1 w-full sm:w-auto px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200">
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            [disabled]="!formData.title.trim()"
+            [class.opacity-50]="!formData.title.trim()"
+            [class.cursor-not-allowed]="!formData.title.trim()"
+            class="sm:order-2 w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:transform-none disabled:shadow-lg">
+            <span class="flex items-center justify-center gap-2">
+              <!-- Edit Icon for Edit Mode -->
+              <svg *ngIf="isEditMode" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+              <!-- Plus Icon for Create Mode -->
+              <svg *ngIf="!isEditMode" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              {{ isEditMode ? 'Update Task' : 'Create Task' }}
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>

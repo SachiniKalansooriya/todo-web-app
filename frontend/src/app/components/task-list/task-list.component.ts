@@ -7,8 +7,7 @@ import { TaskItemComponent } from '../task-item/task-item.component';
   selector: 'app-task-list',
   standalone: true,
   imports: [CommonModule, TaskItemComponent],
-  templateUrl: './task-list.component.html',
-  styleUrls: ['./task-list.component.css']
+  templateUrl: './task-list.component.html'
 })
 export class TaskListComponent {
   @Input() tasks: Task[] = [];

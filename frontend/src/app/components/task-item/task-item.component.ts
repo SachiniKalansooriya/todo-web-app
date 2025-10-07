@@ -6,8 +6,7 @@ import { Task, Status, Priority } from '../../models/task.model';
   selector: 'app-task-item',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './task-item.component.html',
-  styleUrls: ['./task-item.component.css']
+  templateUrl: './task-item.component.html'
 })
 export class TaskItemComponent {
   @Input() task!: Task;
@@ -30,6 +29,41 @@ export class TaskItemComponent {
 
   onStatusChange(status: Status) {
     this.updateStatus.emit({ id: this.task.id, status });
+  }
+
+  getTaskCardClasses(): string {
+    const baseClasses = 'bg-white rounded-lg shadow-sm border hover:shadow-md transition-all duration-300 p-4';
+    const priorityClasses = this.getPriorityBorderClass();
+    const overdue = this.isOverdue() ? 'ring-2 ring-red-200 border-red-300' : 'border-gray-200';
+    
+    return `${baseClasses} ${priorityClasses} ${overdue}`;
+  }
+
+  getPriorityBorderClass(): string {
+    switch (this.task.priority) {
+      case Priority.HIGH: return 'border-l-4 border-l-red-500';
+      case Priority.MEDIUM: return 'border-l-4 border-l-yellow-500';
+      case Priority.LOW: return 'border-l-4 border-l-green-500';
+      default: return 'border-l-4 border-l-gray-300';
+    }
+  }
+
+  getPriorityClasses(): string {
+    switch (this.task.priority) {
+      case Priority.HIGH: return 'bg-red-100 text-red-800';
+      case Priority.MEDIUM: return 'bg-yellow-100 text-yellow-800';
+      case Priority.LOW: return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  }
+
+  getPriorityDotClasses(): string {
+    switch (this.task.priority) {
+      case Priority.HIGH: return 'bg-red-500';
+      case Priority.MEDIUM: return 'bg-yellow-500';
+      case Priority.LOW: return 'bg-green-500';
+      default: return 'bg-gray-500';
+    }
   }
 
   getPriorityClass(): string {

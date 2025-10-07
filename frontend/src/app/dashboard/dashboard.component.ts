@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../auth/auth.service';
 import { TaskService } from '../services/task.service';
 import { CommonModule } from '@angular/common';
@@ -17,9 +18,8 @@ interface User {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, TaskListComponent, TaskFormComponent],
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  imports: [CommonModule, FormsModule, TaskListComponent, TaskFormComponent],
+  templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {
   user$: Observable<User | null>;

@@ -7,8 +7,7 @@ import { Task, TaskRequest, Priority, Status } from '../../models/task.model';
   selector: 'app-task-form',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './task-form.component.html',
-  styleUrls: ['./task-form.component.css']
+  templateUrl: './task-form.component.html'
 })
 export class TaskFormComponent implements OnInit {
   @Input() task?: Task;

@@ -1,57 +1,110 @@
-<div class="task-card" [class.overdue]="isOverdue()">
-  <div class="task-header">
-    <h3 class="task-title">{{ task.title }}</h3>
-    <div class="task-actions">
-      <button class="btn btn-edit" (click)="onEdit()" title="Edit Task">
-        <span class="icon">✏️</span>
-      </button>
-      <button class="btn btn-delete" (click)="onDelete()" title="Delete Task">
-        <span class="icon">🗑️</span>
-      </button>
-    </div>
-  </div>
-
-  <div class="task-body">
-    <p class="task-description" *ngIf="task.description">{{ task.description }}</p>
+<div [class]="getTaskCardClasses()" class="group cursor-pointer">
+  <!-- Task Header -->
+  <div class="flex items-start justify-between mb-3">
+    <h3 class="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-200 flex-1 pr-2">
+      {{ task.title }}
+    </h3>
     
-    <div class="task-meta">
-      <div class="task-due-date" *ngIf="task.dueDate">
-        <span class="icon">📅</span>
-        <span [class.overdue-text]="isOverdue()">{{ formatDate(task.dueDate) }}</span>
-      </div>
-      
-      <div class="task-priority">
-        <span class="priority-badge" [ngClass]="getPriorityClass()">
-          {{ task.priority }}
-        </span>
-      </div>
+    <!-- Action Buttons -->
+    <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+      <button 
+        (click)="onEdit()" 
+        class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
+        title="Edit Task">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+        </svg>
+      </button>
+      <button 
+        (click)="onDelete()" 
+        class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+        title="Delete Task">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        </svg>
+      </button>
     </div>
   </div>
 
-  <div class="task-footer">
-    <div class="status-controls">
+  <!-- Task Description -->
+  <p class="text-gray-600 text-sm mb-3 leading-relaxed" *ngIf="task.description">
+    {{ task.description }}
+  </p>
+
+  <!-- Task Meta Information -->
+  <div class="flex flex-wrap items-center gap-3 mb-4">
+    <!-- Due Date -->
+    <div class="flex items-center gap-1 text-xs" *ngIf="task.dueDate">
+      <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+      </svg>
+      <span [class]="isOverdue() ? 'text-red-600 font-medium' : 'text-gray-500'">
+        {{ formatDate(task.dueDate) }}
+      </span>
+      <span *ngIf="isOverdue()" class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-medium">
+        Overdue
+      </span>
+    </div>
+    
+    <!-- Priority Badge -->
+    <span [class]="getPriorityClasses()" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium">
+      <div [class]="getPriorityDotClasses()" class="w-1.5 h-1.5 rounded-full mr-1.5"></div>
+      {{ task.priority }}
+    </span>
+  </div>
+
+  <!-- Status Controls -->
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-xs text-gray-500 font-medium">Status:</span>
+    <div class="flex bg-gray-100 rounded-lg p-0.5">
       <button 
-        class="status-btn" 
-        [class.active]="task.status === Status.TODO"
-        (click)="onStatusChange(Status.TODO)">
+        (click)="onStatusChange(Status.TODO)"
+        [class]="task.status === Status.TODO ? 'bg-white shadow-sm text-blue-600' : 'text-gray-600 hover:text-gray-900'"
+        class="px-3 py-1 text-xs font-medium rounded-md transition-all duration-200">
         To Do
       </button>
       <button 
-        class="status-btn" 
-        [class.active]="task.status === Status.IN_PROGRESS"
-        (click)="onStatusChange(Status.IN_PROGRESS)">
+        (click)="onStatusChange(Status.IN_PROGRESS)"
+        [class]="task.status === Status.IN_PROGRESS ? 'bg-white shadow-sm text-orange-600' : 'text-gray-600 hover:text-gray-900'"
+        class="px-3 py-1 text-xs font-medium rounded-md transition-all duration-200">
         In Progress
       </button>
       <button 
-        class="status-btn" 
-        [class.active]="task.status === Status.DONE"
-        (click)="onStatusChange(Status.DONE)">
+        (click)="onStatusChange(Status.DONE)"
+        [class]="task.status === Status.DONE ? 'bg-white shadow-sm text-green-600' : 'text-gray-600 hover:text-gray-900'"
+        class="px-3 py-1 text-xs font-medium rounded-md transition-all duration-200">
         Done
       </button>
     </div>
+  </div>
+
+  <!-- Task Footer -->
+  <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+    <span class="text-xs text-gray-400">
+      Created {{ formatDate(task.createdAt) }}
+    </span>
     
-    <div class="task-dates">
-      <small>Created: {{ formatDate(task.createdAt) }}</small>
+    <!-- Quick Action Buttons -->
+    <div class="flex items-center gap-1">
+      <button 
+        *ngIf="task.status !== Status.DONE"
+        (click)="onStatusChange(Status.DONE)"
+        class="bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1 rounded-md text-xs font-medium transition-colors duration-200 flex items-center gap-1">
+        <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        Complete
+      </button>
+      
+      <button 
+        *ngIf="task.status === Status.DONE"
+        (click)="onStatusChange(Status.TODO)"
+        class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded-md text-xs font-medium transition-colors duration-200 flex items-center gap-1">
+        <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+        </svg>
+        Reopen
+      </button>
     </div>
   </div>
 </div>
