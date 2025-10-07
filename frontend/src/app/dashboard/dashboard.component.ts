@@ -65,7 +65,7 @@ export class DashboardComponent implements OnInit {
     overdue: 0
   };
 
-  // Upcoming tasks (next 6 excluding completed)
+  // Upcoming tasks (next 4 excluding completed; only TODO or IN_PROGRESS)
   upcomingTasks: Task[] = [];
   upcomingTasksLeft: Task[] = [];
   upcomingTasksRight: Task[] = [];
@@ -331,22 +331,22 @@ export class DashboardComponent implements OnInit {
   // Compute upcoming 6 tasks excluding completed and split into left/right columns
   private computeUpcoming() {
     const upcoming = this.tasks
-      .filter(t => t.dueDate && t.status !== Status.DONE)
+      .filter(t => t.dueDate && (t.status === Status.TODO || t.status === Status.IN_PROGRESS))
       .map(t => ({ t, due: new Date(t.dueDate!) }))
       .sort((a,b) => a.due.getTime() - b.due.getTime())
-      .slice(0, 6)
+      .slice(0, 4)
       .map(x => x.t);
 
     this.upcomingTasks = upcoming;
-    this.upcomingTasksLeft = upcoming.slice(0, 3);
-    this.upcomingTasksRight = upcoming.slice(3, 6);
+    this.upcomingTasksLeft = upcoming.slice(0, 2);
+    this.upcomingTasksRight = upcoming.slice(2, 4);
 
-    // Progress: percent of upcoming tasks that are IN_PROGRESS or DONE? The user asked 'progress works' so we'll calculate percent of tasks in progress or done among upcoming.
+    // Progress: percent of upcoming tasks that are IN_PROGRESS
     if (upcoming.length === 0) {
       this.upcomingOverallProgress = 0;
     } else {
-      const doneOrProg = upcoming.filter(t => t.status === Status.IN_PROGRESS || t.status === Status.DONE).length;
-      this.upcomingOverallProgress = Math.round((doneOrProg / upcoming.length) * 100);
+      const inProg = upcoming.filter(t => t.status === Status.IN_PROGRESS).length;
+      this.upcomingOverallProgress = Math.round((inProg / upcoming.length) * 100);
     }
   }
 
